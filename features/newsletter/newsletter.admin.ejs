@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administration Newsletter VISA-ISA</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #c8cacd;
+      color: black;
+      line-height: 1.4;
+      min-height: 100vh;
+    "
+  >
+    <div
+      style="
+        background: white;
+        border: 2px solid #231f20;
+        padding: 40px;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+      "
+    >
+      <div
+        style="
+          font-family: Arial, sans-serif;
+          font-size: 2.5em;
+          font-weight: bold;
+          color: #d2232a;
+          margin-bottom: 10px;
+          text-transform: uppercase;
+          text-align: center;
+        "
+      >
+        VISA-ISA
+      </div>
+      <div
+        style="
+          color: #605e5f;
+          margin-bottom: 30px;
+          font-size: 1.1em;
+          text-transform: uppercase;
+          text-align: center;
+        "
+      >
+        Administration Newsletter
+      </div>
+
+      <% if (success && processedEmails.length > 0) { %>
+      <div
+        style="
+          padding: 20px;
+          margin: 20px 0;
+          font-weight: 500;
+          background: #d4edda;
+          color: #155724;
+          border: 2px solid #c3e6cb;
+        "
+      >
+        <h3
+          style="
+            margin-top: 0;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+          "
+        >
+          ✅ Désinscription en lot réussie
+        </h3>
+        <p style="margin-bottom: 15px; font-size: 1.1em">
+          <strong><%= totalProcessed %></strong> email(s) désinscrit(s) avec
+          succès
+        </p>
+        <% if (totalFailed > 0) { %>
+        <p style="margin-bottom: 15px; font-size: 1.1em">
+          <strong><%= totalFailed %></strong> email(s) en erreur
+        </p>
+        <% } %>
+      </div>
+      <% } %> <% if (error) { %>
+      <div
+        style="
+          padding: 20px;
+          margin: 20px 0;
+          font-weight: 500;
+          background: #f8d7da;
+          color: #721c24;
+          border: 2px solid #f5c6cb;
+        "
+      >
+        <h3
+          style="
+            margin-top: 0;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+          "
+        >
+          ❌ Erreur
+        </h3>
+        <p style="margin-bottom: 15px; font-size: 1.1em"><%= error %></p>
+      </div>
+      <% } %> <% if (processedEmails.length > 0) { %>
+      <div
+        style="
+          padding: 20px;
+          margin: 20px 0;
+          background: #f8f9fa;
+          border: 2px solid #605e5f;
+        "
+      >
+        <h4
+          style="
+            margin-top: 0;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #155724;
+          "
+        >
+          Emails désinscrits avec succès :
+        </h4>
+        <ul style="margin: 10px 0; padding-left: 20px">
+          <% processedEmails.forEach(function(email) { %>
+          <li style="margin: 5px 0; font-size: 1em">
+            <span style="font-weight: bold; color: #d2232a"><%= email %></span>
+          </li>
+          <% }); %>
+        </ul>
+      </div>
+      <% } %> <% if (failedEmails.length > 0) { %>
+      <div
+        style="
+          padding: 20px;
+          margin: 20px 0;
+          background: #fff3cd;
+          border: 2px solid #ffeaa7;
+        "
+      >
+        <h4
+          style="
+            margin-top: 0;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #721c24;
+          "
+        >
+          Emails en erreur :
+        </h4>
+        <ul style="margin: 10px 0; padding-left: 20px">
+          <% failedEmails.forEach(function(item) { %>
+          <li style="margin: 5px 0; font-size: 1em">
+            <span style="font-weight: bold; color: #d2232a"
+              ><%= item.email %></span
+            >
+            <span style="color: #721c24; font-size: 0.9em">
+              - <%= item.error %></span
+            >
+          </li>
+          <% }); %>
+        </ul>
+      </div>
+      <% } %>
+
+      <form method="POST" action="/newsletter/admin">
+        <div style="margin-bottom: 20px">
+          <label
+            for="password"
+            style="
+              font-family: Arial, sans-serif;
+              font-size: 1.1em;
+              margin: 0;
+              padding: 0 0 0 5px;
+              display: block;
+              margin-bottom: 8px;
+              font-weight: bold;
+            "
+          >
+            Mot de passe administrateur
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            style="
+              width: 100%;
+              padding: 12px 15px;
+              border: 2px solid #231f20;
+              font-size: 16px;
+              font-family: Arial, sans-serif;
+              box-sizing: border-box;
+            "
+          />
+        </div>
+
+        <div style="margin-bottom: 20px">
+          <label
+            for="emails"
+            style="
+              font-family: Arial, sans-serif;
+              font-size: 1.1em;
+              margin: 0;
+              padding: 0 0 0 5px;
+              display: block;
+              margin-bottom: 8px;
+              font-weight: bold;
+            "
+          >
+            Emails à désinscrire (un par ligne)
+          </label>
+          <textarea
+            id="emails"
+            name="emails"
+            rows="10"
+            required
+            placeholder="contact@example.com&#10;user@domain.com&#10;test@site.fr"
+            style="
+              width: 100%;
+              padding: 12px 15px;
+              border: 2px solid #231f20;
+              font-size: 16px;
+              font-family: Arial, sans-serif;
+              box-sizing: border-box;
+              resize: vertical;
+            "
+          ></textarea>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0">
+          <button
+            type="submit"
+            style="
+              padding: 15px 30px;
+              background: #d2232a;
+              color: white;
+              border: 2px solid #231f20;
+              font-family: Arial, sans-serif;
+              font-size: 1.2em;
+              font-weight: bold;
+              text-transform: uppercase;
+              cursor: pointer;
+              transition: all 0.2s ease-in-out;
+            "
+            onmouseover="this.style.boxShadow='5px 5px 0 rgba(0,0,0,0.5)'"
+            onmouseout="this.style.boxShadow='none'"
+          >
+            Désinscrire en lot
+          </button>
+        </div>
+      </form>
+
+      <div
+        style="
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 2px solid #605e5f;
+          color: #605e5f;
+          font-size: 0.9em;
+        "
+      >
+        <p style="margin: 5px 0">
+          <strong>⚠️ Attention :</strong> Cette action est irréversible. Les
+          emails seront définitivement désinscrits.
+        </p>
+        <p style="margin: 5px 0">
+          <strong>Format :</strong> Un email par ligne, format valide requis.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Confirmation avant soumission
+      document.querySelector('form').addEventListener('submit', function (e) {
+        const emails = document.getElementById('emails').value.trim()
+        const emailCount = emails
+          .split('\n')
+          .filter((email) => email.trim()).length
+
+        if (emailCount === 0) {
+          e.preventDefault()
+          alert('Veuillez entrer au moins un email.')
+          return
+        }
+
+        const confirmMessage = `Êtes-vous sûr de vouloir désinscrire ${emailCount} email(s) ? Cette action est irréversible.`
+        if (!confirm(confirmMessage)) {
+          e.preventDefault()
+        }
+      })
+    </script>
+  </body>
+</html>

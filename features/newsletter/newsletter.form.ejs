@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inscription Newsletter VISA</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #ffffff 0%, #eeeeee 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+      }
+      .logo {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #000000;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 1.1em;
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #000000;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+      }
+      .form-group input:focus {
+        outline: none;
+        border-color: #000000;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+      .btn {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #000000;
+        color: black;
+        background-color: #ffffff;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        margin-top: 10px;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .status {
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+        font-weight: 500;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        color: #666;
+        font-size: 0.9em;
+      }
+      .privacy {
+        font-size: 0.8em;
+        color: #888;
+        margin-top: 15px;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">VISA</div>
+      <div class="subtitle">Newsletter</div>
+
+      <% if (success) { %>
+      <div class="status success">
+        <h3>✅ Inscription en cours !</h3>
+        <p><%= message %></p>
+        <% if (email) { %>
+        <p>Email : <strong><%= email %></strong></p>
+        <% } %>
+      </div>
+      <% } else if (error) { %>
+      <div class="status error">
+        <h3>❌ Erreur</h3>
+        <p><%= error %></p>
+      </div>
+      <% } %> <% if (!success) { %>
+      <form method="POST" action="/newsletter/inscription">
+        <div class="form-group">
+          <label for="email">Adresse email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="votre@email.com"
+            required
+            value="<%= email || '' %>"
+          />
+        </div>
+        <button type="submit" class="btn">S'inscrire à la newsletter</button>
+      </form>
+      <% } %>
+
+      <div class="privacy">
+        En vous inscrivant, vous acceptez de recevoir notre newsletter
+        mensuelle. Vous pourrez vous désinscrire à tout moment.
+      </div>
+
+      <div class="footer">
+        <p>Recevez chaque mois les dernières actualités VISA</p>
+        <p>Newsletter gratuite • Désinscription facile</p>
+      </div>
+    </div>
+
+    <script>
+      // Validation côté client
+      document.querySelector('form')?.addEventListener('submit', function (e) {
+        const email = document.getElementById('email').value
+        const btn = document.querySelector('.btn')
+
+        if (!email || !email.includes('@')) {
+          e.preventDefault()
+          alert('Veuillez entrer une adresse email valide.')
+          return
+        }
+
+        btn.disabled = true
+        btn.textContent = 'Inscription en cours...'
+      })
+    </script>
+  </body>
+</html>
