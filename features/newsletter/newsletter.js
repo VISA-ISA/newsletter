@@ -8,8 +8,15 @@ module.exports = async (params = {}) => {
 
   const now = new Date()
   const day = 1
-  const month = now.getMonth() - 1
-  const year = now.getFullYear()
+  let month = now.getMonth() - 1
+  let year = now.getFullYear()
+  if (month === 0) {
+    month = 12
+    year = year - 1
+  } else if (month === 11) {
+    month = 0
+    year = year + 1
+  }
   const monthName = new Date(year, month, 1).toLocaleString('fr-FR', { month: 'long' })
   const articles = await Articles(day, month, year)
 

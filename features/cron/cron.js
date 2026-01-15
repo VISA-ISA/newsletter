@@ -2,25 +2,6 @@ const notif = require('../notif/notif');
 
 module.exports = [
   {
-    name: 'test',
-    time: '0/2 * * * *', // Toutes les 35 secondes
-    timezone: 'Europe/Paris',
-    request: {
-      method: 'GET',
-      url: '/',
-    },
-    onSuccess: (res) => {
-      console.log('✅ Test cron :', res.payload);
-    },
-    onError: (err) => {
-      notif(
-        `❌ Erreur lors du nettoyage des articles épinglés :
-          :warning: ${err}`
-      )
-    },
-  },
-
-  {
     name: 'clean-sticky-posts',
     time: '0 * * * *', // Toutes les heures
     timezone: 'Europe/Paris',
