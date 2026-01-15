@@ -11,7 +11,7 @@ const init = async () => {
 
   const server = Hapi.server({
     port: process.env.PORT || 4000,
-    host: 'localhost'
+    host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost'
   });
 
   try {
@@ -30,8 +30,6 @@ const init = async () => {
   catch (err) {
     console.info('Erreur lors du démarrage du serveur', err);
   }
-
-  console.log('process.env.WP_GRAPHQL', process.env.WP_GRAPHQL);
 };
 
 process.on('unhandledRejection', (err) => {
