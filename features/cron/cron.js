@@ -3,7 +3,7 @@ const notif = require('../notif/notif');
 module.exports = [
   {
     name: 'test',
-    time: '* 4 * * * *', // Toutes les 4 minutes
+    time: '35 * * * *', // Toutes les 35 secondes
     timezone: 'Europe/Paris',
     request: {
       method: 'GET',
