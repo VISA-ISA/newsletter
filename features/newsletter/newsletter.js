@@ -8,24 +8,24 @@ module.exports = async (params = {}) => {
 
   const now = new Date()
   const day = 1
-  let month = now.getMonth() - 1
-  let year = now.getFullYear()
-  if (month === 0) {
-    month = 12
-    year = year - 1
-  } else if (month === 11) {
-    month = 0
-    year = year + 1
+  let startMonth = now.getMonth() - 1
+  let startYear = now.getFullYear()
+
+  if (startMonth <= 0) {
+    startMonth = 12
+    startYear = startYear - 1
   }
-  const monthName = new Date(year, month, 1).toLocaleString('fr-FR', { month: 'long' })
-  const articles = await Articles(day, month, year)
+
+
+  const monthName = new Date(startYear, startMonth, 1).toLocaleString('fr-FR', { month: 'long' })
+  const articles = await Articles(day, startMonth, startYear)
 
   const template = await readFile(path.join(__dirname, 'newsletter.ejs'), 'utf8');
 
   return ejs.render(template, {
     posts: articles,
     month: monthName,
-    year,
+    year: startYear,
     origin: process.env.ORIGIN,
     token: token || null,
     email: email || null,

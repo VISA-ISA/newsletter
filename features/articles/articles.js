@@ -1,8 +1,7 @@
 const urls = require('../api/api.const')
 const HTMLDecoderEncoder = require('html-encoder-decoder')
 
-module.exports = async (day = 1, month = 1, year = 2025) => {
-
+module.exports = async (startDay = 1, startMonth = 1, startYear = 2025) => {
 
   const response = await fetch(urls.graphql, {
     headers: {
@@ -11,8 +10,13 @@ module.exports = async (day = 1, month = 1, year = 2025) => {
     method: 'POST',
     body: JSON.stringify({
       query: `
-        query getPosts($day: Int,$month: Int, $year: Int) {
-          posts(where: {dateQuery: {after: {day: $day, month: $month, year: $year}}, categoryNotIn: ["584"] }, first: 10000) {
+        query getPosts($day: Int, $month: Int, $year: Int) {
+          posts(where: {
+            dateQuery: {
+              after: {day: $day, month: $month, year: $year}
+            },
+            categoryNotIn: ["584"]
+          }, first: 10000) {
             edges {
               node {
                 featuredImage {
@@ -37,14 +41,18 @@ module.exports = async (day = 1, month = 1, year = 2025) => {
           }
         }
         `,
-      variables: { day, month, year },
+      variables: {
+        day: startDay,
+        month: startMonth,
+        year: startYear
+      },
     })
   })
+
   const { data } = await response.json()
 
-  const currentMonth = new Date().getMonth()
   return data.posts.edges
-    .filter((o) => new Date(o.node.date).getMonth() === currentMonth)
+
     .map((o) => {
 
       const splitExcerpt = o.node.excerpt.split('<a class="more-link"')
