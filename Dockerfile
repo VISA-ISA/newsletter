@@ -5,6 +5,8 @@ COPY package*.json ./
 
 RUN npm ci --only=production && npm cache clean --force
 
+RUN npm install -g pm2
+
 COPY . .
 
 RUN addgroup -g 1001 -S nodejs && \
@@ -17,4 +19,4 @@ EXPOSE 4000
 
 ENV NODE_ENV=production
 
-CMD ["node", "server.js"]
+CMD ["pm2-runtime", "start", "server.js"]
