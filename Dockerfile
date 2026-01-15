@@ -6,7 +6,6 @@ COPY package.json ./
 
 RUN yarn install --frozen-lockfile --production && yarn cache clean
 
-RUN npm install -g pm2
 
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
@@ -22,4 +21,4 @@ EXPOSE 4000
 
 ENV NODE_ENV=production
 
-CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+CMD ["npm", "start"]
