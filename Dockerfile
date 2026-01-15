@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:24-alpine
 WORKDIR /app
 
 COPY package*.json ./
@@ -19,4 +19,4 @@ EXPOSE 4000
 
 ENV NODE_ENV=production
 
-CMD ["npm", "start"]
+CMD ["pm2-runtime", "start", "server.js"]
