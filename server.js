@@ -28,13 +28,24 @@ const init = async () => {
     console.log('Le serveur est en ligne sur %s', server.info.uri);
   }
   catch (err) {
-    console.info('Erreur lors du démarrage du serveur', err);
+    console.error('Erreur lors du démarrage du serveur', err);
+    process.exit(1);
   }
 };
 
 process.on('unhandledRejection', (err) => {
-  console.log(err);
+  console.error('Unhandled Rejection:', err);
   process.exit(1);
+});
+
+process.on('SIGINT', () => {
+  console.log('Reçu SIGINT, arrêt du serveur...');
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('Reçu SIGTERM, arrêt du serveur...');
+  process.exit(0);
 });
 
 init();
