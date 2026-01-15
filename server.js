@@ -1,6 +1,4 @@
 'use strict';
-// Charger dotenv uniquement si le fichier .env existe (développement local)
-// En production (CapRover), les variables d'environnement sont déjà injectées
 require('dotenv').config({ silent: true })
 
 const Hapi = require('@hapi/hapi');
@@ -38,14 +36,5 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-process.on('SIGINT', () => {
-  console.log('Reçu SIGINT, arrêt du serveur...');
-  process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-  console.log('Reçu SIGTERM, arrêt du serveur...');
-  process.exit(0);
-});
 
 init();
