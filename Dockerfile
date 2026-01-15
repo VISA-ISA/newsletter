@@ -19,4 +19,4 @@ EXPOSE 4000
 
 ENV NODE_ENV=production
 
-CMD ["pm2-runtime", "start", "server.js"]
+CMD ["npm", "start"]
