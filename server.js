@@ -1,5 +1,7 @@
 'use strict';
-require('dotenv').config()
+// Charger dotenv uniquement si le fichier .env existe (développement local)
+// En production (CapRover), les variables d'environnement sont déjà injectées
+require('dotenv').config({ silent: true })
 
 const Hapi = require('@hapi/hapi');
 const routes = require('./features/routes/routes');
@@ -29,6 +31,7 @@ const init = async () => {
     console.info('Erreur lors du démarrage du serveur', err);
   }
 
+  console.log('process.env.WP_GRAPHQL', process.env.WP_GRAPHQL);
 };
 
 process.on('unhandledRejection', (err) => {
