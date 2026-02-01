@@ -7,7 +7,7 @@ const { findOrCreateNewsletter, getSubscribersForSend, closeNewsletter, insertEm
 const { getSubscribersCount } = require('../subscribers/subscribers.service')
 
 module.exports = async (request, h) => {
-  console.log('newsletter.post')
+
   await authCron(request, h)
 
   const LIMIT = 95
@@ -28,7 +28,7 @@ module.exports = async (request, h) => {
   }
 
   const to = await getSubscribersForSend(newsletter_id, LIMIT)
-  console.log('to', to)
+
   if (to.length < LIMIT) {
     await closeNewsletter(newsletter_id)
   }
