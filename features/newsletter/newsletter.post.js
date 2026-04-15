@@ -34,9 +34,9 @@ module.exports = async (request, h) => {
   }
 
   if (to.length > 0) {
+    // Préparer les subscribers avec leurs nouveaux tokens
+    const subscribersWithTokens = []
     try {
-      // Préparer les subscribers avec leurs nouveaux tokens
-      const subscribersWithTokens = []
 
       for (const subscriber of to) {
         // Générer un nouveau token
@@ -60,7 +60,7 @@ module.exports = async (request, h) => {
         })
 
         await sendMail({
-          to: [subscriber],
+          to: [{email: subscriber.email, name: subscriber.email.split("@")[0]}],
           subject,
           htmlContent,
         })
@@ -71,7 +71,6 @@ module.exports = async (request, h) => {
 
     } catch (error) {
       console.log(error)
-      console.log(subscribersWithTokens)
       return h.response(error?.message || error, error?.code || 500)
     }
 

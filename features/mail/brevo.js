@@ -1,6 +1,8 @@
 const notif = require('../notif/notif')
 
 module.exports = async ({ to = [], subject, htmlContent }) => {
+    
+    console.log(to)
 
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -13,7 +15,7 @@ module.exports = async ({ to = [], subject, htmlContent }) => {
         name: 'Newsletter VISA',
         email: process.env.MAIL_FROM,
       },
-      bcc: to,
+      to,
       subject,
       htmlContent,
     }),
@@ -31,7 +33,8 @@ module.exports = async ({ to = [], subject, htmlContent }) => {
 
     notif(
       `❌ Erreur lors de l'envoi de la newsletter :
-      ${payload.message}`
+      ${payload.message}
+      ${to.map(t=>t.email).join(',')}`
     )
     throw new Error(JSON.stringify(payload))
   }
