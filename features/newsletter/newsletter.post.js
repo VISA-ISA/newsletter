@@ -71,6 +71,7 @@ module.exports = async (request, h) => {
 
     } catch (error) {
       console.log(error)
+      console.log(subscribersWithTokens)
       return h.response(error?.message || error, error?.code || 500)
     }
 
