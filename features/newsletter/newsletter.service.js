@@ -79,6 +79,7 @@ const newsletterService = {
     await knex('newsletters').where('newsletter_id', newsletter_id).update({ terminated: 1, updated_at: new Date() })
   },
   insertEmails: async (newsletter_id, to) => {
+    if (!to.length) return
     await knex('emails').insert(to.map(subscriber => ({
       newsletter_id,
       subscriber_email: subscriber.email,

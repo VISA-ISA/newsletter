@@ -71,8 +71,10 @@ module.exports = async (request, h) => {
         })
       }
 
-      // Enregistrer tous les emails
-      await insertEmails(newsletter_id, to)
+      // Enregistrer uniquement les envois réussis (exclut les emails supprimés comme invalides)
+      if (subscribersWithTokens.length > 0) {
+        await insertEmails(newsletter_id, subscribersWithTokens)
+      }
 
     } catch (error) {
       console.log(error)
