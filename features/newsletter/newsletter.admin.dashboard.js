@@ -1,4 +1,5 @@
 const { getAllSubscribers, disableSubscriber, bulkCreateSubscribers } = require('./newsletter.service');
+const { verifyAdmin, getTokenFromRequest } = require('./newsletter.admin.auth');
 const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
@@ -40,14 +41,6 @@ function adminListUrl (token, extra = {}) {
   return `/newsletter/admin?${p.toString()}`
 }
 
-// Vérification simple du token
-const verifyAdmin = (request) => {
-  const token = request.query.token || request.state?.admin_token;
-  // Vérifier que le token existe (dans un vrai système, on vérifierait en base ou avec JWT)
-  // Pour l'instant, on accepte n'importe quel token après connexion
-  return !!token;
-};
-
 // Handler GET - Afficher le dashboard
 const getHandler = async (request, h) => {
   // Vérifier l'authentification
@@ -66,7 +59,7 @@ const getHandler = async (request, h) => {
     subscriberTotal: allSubscribers.length,
     searchQuery,
     statusFilter,
-    token: request.query.token,
+    token: getTokenFromRequest(request),
     success: request.query.success,
     email: request.query.email,
     error: request.query.error,
@@ -86,7 +79,7 @@ const postHandler = async (request, h) => {
   }
 
   const { action, email, emails, return_q, return_status } = request.payload;
-  const token = request.query.token;
+  const token = getTokenFromRequest(request);
   const filterCtx = { q: return_q, status: return_status };
 
   // Désinscription individuelle

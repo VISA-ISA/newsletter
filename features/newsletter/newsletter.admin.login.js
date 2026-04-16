@@ -23,13 +23,10 @@ module.exports = async (request, h) => {
     return h.response(html).type('text/html').code(401);
   }
 
-  // Générer un token de session simple (hash du mot de passe + timestamp)
-  const crypto = require('crypto');
-  const timestamp = Date.now();
-  const sessionToken = crypto.createHash('sha256').update(process.env.TOKEN_ADMIN + timestamp).digest('hex');
+  const adminSecret = process.env.TOKEN_ADMIN
 
-  // Rediriger vers la page admin avec le token
-  return h.redirect(`/newsletter/admin?token=${sessionToken}`).state('admin_token', sessionToken, {
+  // Même valeur que le mot de passe : vérifiée côté dashboard (newsletter.admin.auth)
+  return h.redirect(`/newsletter/admin?token=${encodeURIComponent(adminSecret)}`).state('admin_token', adminSecret, {
     isSecure: false,
     isHttpOnly: true,
     path: '/',

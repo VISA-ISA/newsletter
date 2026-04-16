@@ -354,7 +354,7 @@
                       <% if (!subscriber.disabled) { %>
                       <form
                         method="POST"
-                        action="/newsletter/admin?token=<%= token %>"
+                        action="/newsletter/admin?token=<%= encodeURIComponent(token || '') %>"
                         style="display: inline"
                         onsubmit="return confirm('Êtes-vous sûr de vouloir désinscrire <%= subscriber.email %> ?');"
                       >
@@ -450,7 +450,7 @@
             </div>
             <% } %>
 
-            <form method="POST" action="/newsletter/admin?token=<%= token %>">
+            <form method="POST" action="/newsletter/admin?token=<%= encodeURIComponent(token || '') %>">
               <input type="hidden" name="action" value="bulk_subscribe" />
               <input type="hidden" name="return_q" value="<%= searchQuery %>" />
               <input type="hidden" name="return_status" value="<%= statusFilter %>" />
@@ -579,7 +579,7 @@
 
             <form
               method="POST"
-              action="/newsletter/admin?token=<%= token %>"
+              action="/newsletter/admin?token=<%= encodeURIComponent(token || '') %>"
               onsubmit="return confirm('Êtes-vous sûr de vouloir désinscrire ces emails ? Cette action est irréversible.');"
             >
               <input type="hidden" name="action" value="bulk_unsubscribe" />
