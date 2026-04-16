@@ -41,8 +41,19 @@ function isValidEmail (email) {
   return true
 }
 
+async function insertEmailRecord (newsletter_id, subscriber) {
+  await knex('emails').insert({
+    newsletter_id,
+    subscriber_email: subscriber.email,
+    status: 'sent',
+    created_at: new Date(),
+    updated_at: new Date(),
+  })
+}
+
 const newsletterService = {
   isValidEmail,
+  insertEmail: insertEmailRecord,
   findOrCreateNewsletter: async (newsletter_id) => {
     const newsletter = await knex('newsletters').where('newsletter_id', newsletter_id).first()
 
@@ -80,13 +91,9 @@ const newsletterService = {
   },
   insertEmails: async (newsletter_id, to) => {
     if (!to.length) return
-    await knex('emails').insert(to.map(subscriber => ({
-      newsletter_id,
-      subscriber_email: subscriber.email,
-      status: 'sent',
-      created_at: new Date(),
-      updated_at: new Date(),
-    })))
+    for (const subscriber of to) {
+      await insertEmailRecord(newsletter_id, subscriber)
+    }
   },
   updateEmail: async (newsletter_id, email, payload) => {
     await knex('emails').where('newsletter_id', newsletter_id).where('subscriber_email', email).update({ ...payload, updated_at: new Date() })

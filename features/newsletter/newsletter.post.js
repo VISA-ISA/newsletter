@@ -3,7 +3,7 @@ const authCron = require('../cron/cron.auth')
 const sendMail = require('../mail/brevo')
 const Newsletter = require('./newsletter')
 const notif = require('../notif/notif')
-const { findOrCreateNewsletter, getSubscribersForSend, closeNewsletter, insertEmails, getEmailsCount, getEmailsStats, updateSubscriberToken, isValidEmail, deleteSubscriber } = require('./newsletter.service')
+const { findOrCreateNewsletter, getSubscribersForSend, closeNewsletter, insertEmail, getEmailsCount, getEmailsStats, updateSubscriberToken, isValidEmail, deleteSubscriber } = require('./newsletter.service')
 const { getSubscribersCount } = require('../subscribers/subscribers.service')
 
 module.exports = async (request, h) => {
@@ -69,11 +69,9 @@ module.exports = async (request, h) => {
           subject,
           htmlContent,
         })
-      }
 
-      // Enregistrer uniquement les envois réussis (exclut les emails supprimés comme invalides)
-      if (subscribersWithTokens.length > 0) {
-        await insertEmails(newsletter_id, subscribersWithTokens)
+        // Un enregistrement par envoi réussi : en cas d’erreur plus loin, le prochain run ne renverra pas ceux déjà tracés
+        await insertEmail(newsletter_id, subscriber)
       }
 
     } catch (error) {
