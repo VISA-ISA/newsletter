@@ -174,7 +174,7 @@ const newsletterService = {
           await knex('subscribers').where('email', trimmedEmail).update({
             token,
             message_id,
-            confirm: 0,
+            confirm: 1,
             disabled: 0,
             updatedAt: new Date()
           })
@@ -184,7 +184,7 @@ const newsletterService = {
             email: trimmedEmail,
             token,
             message_id,
-            confirm: 0,
+            confirm: 1,
             disabled: 0,
             createdAt: new Date(),
             updatedAt: new Date()
