@@ -1,12 +1,44 @@
 const { knex } = require("../db/db")
 
+/**
+ * Dernier segment du domaine : rejette les suffixes corrompus type gmail.com3Fod (TLD « com3Fod »).
+ * Les TLD ASCII usuels sont alphabétiques ; les TLD IDN sont en punycode (xn--…).
+ * Les domaines custom (ex. mail.entreprise.fr) restent valides si le TLD est une étiquette lettres-only ou punycode.
+ */
+function isValidTldLabel (tld) {
+  if (!tld || tld.length > 63) return false
+  if (/^xn--/i.test(tld)) {
+    return /^xn--[a-z0-9-]{1,59}$/i.test(tld) && tld.length >= 4
+  }
+  if (tld.length < 2) return false
+  return /^[a-z]+$/i.test(tld)
+}
+
 /** Format d’email exploitable pour l’envoi (RFC simplifiée, longueur raisonnable). */
 function isValidEmail (email) {
   if (typeof email !== 'string') return false
   const trimmed = email.trim()
   if (trimmed.length < 5 || trimmed.length > 254) return false
-  // Local @ domaine avec au moins un point dans le domaine
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(trimmed)
+
+  const at = trimmed.lastIndexOf('@')
+  if (at <= 0 || at >= trimmed.length - 1) return false
+
+  const local = trimmed.slice(0, at)
+  const domain = trimmed.slice(at + 1)
+  if (!local.length || local.length > 64) return false
+  if (!domain.length || domain.length > 253) return false
+  if (!domain.includes('.')) return false
+
+  const labels = domain.split('.')
+  if (labels.length < 2) return false
+  if (labels.some((l) => !l || l.length > 63)) return false
+
+  if (!isValidTldLabel(labels[labels.length - 1])) return false
+
+  if (!/^[^\s@]+$/.test(local)) return false
+  if (!/^[^\s@]+$/.test(domain)) return false
+
+  return true
 }
 
 const newsletterService = {

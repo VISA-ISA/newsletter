@@ -1,4 +1,10 @@
 const notif = require('../notif/notif')
+const { disableSubscriber } = require('../newsletter/newsletter.service')
+
+/** Réponse Brevo du type « email is not valid in to » */
+function isInvalidEmailInTo (message) {
+  return /email is not valid in to/i.test(String(message || ''))
+}
 
 module.exports = async ({ to = [], subject, htmlContent }) => {
 
@@ -27,6 +33,18 @@ module.exports = async ({ to = [], subject, htmlContent }) => {
     const payload = {
       code: response.status,
       message: data?.message || 'Une erreur est survenue lors de l\'envoi du mail',
+    }
+
+    if (isInvalidEmailInTo(payload.message)) {
+      for (const recipient of to) {
+        const email = recipient?.email
+        if (!email) continue
+        try {
+          await disableSubscriber(email)
+        } catch (err) {
+          console.error('disableSubscriber après erreur Brevo (email invalide dans to):', email, err)
+        }
+      }
     }
 
     notif(
