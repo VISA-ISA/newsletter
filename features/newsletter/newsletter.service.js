@@ -1,6 +1,16 @@
 const { knex } = require("../db/db")
 
+/** Format d’email exploitable pour l’envoi (RFC simplifiée, longueur raisonnable). */
+function isValidEmail (email) {
+  if (typeof email !== 'string') return false
+  const trimmed = email.trim()
+  if (trimmed.length < 5 || trimmed.length > 254) return false
+  // Local @ domaine avec au moins un point dans le domaine
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(trimmed)
+}
+
 const newsletterService = {
+  isValidEmail,
   findOrCreateNewsletter: async (newsletter_id) => {
     const newsletter = await knex('newsletters').where('newsletter_id', newsletter_id).first()
 
@@ -57,6 +67,12 @@ const newsletterService = {
   disableSubscriber: async (email) => {
     await knex('subscribers').where('email', email).update({ disabled: 1, confirm: 0, updatedAt: new Date() })
   },
+  /** Suppression définitive (emails liés puis ligne subscriber — contraintes FK). */
+  deleteSubscriber: async (email) => {
+    if (!email) return
+    await knex('emails').where('subscriber_email', email).del()
+    await knex('subscribers').where('email', email).del()
+  },
   confirmSubscriber: async (token) => {
     const subscriber = await knex('subscribers').where('token', token).first()
     if (subscriber) {
@@ -67,24 +83,25 @@ const newsletterService = {
   },
   createSubscriber: async (email) => {
     const crypto = require('crypto')
+    const normalizedEmail = String(email || '').trim()
     const token = crypto.randomBytes(32).toString('hex')
     const message_id = crypto.randomBytes(16).toString('hex')
 
-    const subscriber = await knex('subscribers').where('email', email).first()
+    const subscriber = await knex('subscribers').where('email', normalizedEmail).first()
     if (subscriber) {
       // Mettre à jour le token si l'utilisateur existe déjà
-      await knex('subscribers').where('email', email).update({
+      await knex('subscribers').where('email', normalizedEmail).update({
         token,
         message_id,
         confirm: 0,
         disabled: 0,
         updatedAt: new Date()
       })
-      return { ...subscriber, token, message_id }
+      return { ...subscriber, email: normalizedEmail, token, message_id }
     } else {
       // Créer un nouveau subscriber
       const [id] = await knex('subscribers').insert({
-        email,
+        email: normalizedEmail,
         token,
         message_id,
         confirm: 0,
@@ -92,7 +109,7 @@ const newsletterService = {
         createdAt: new Date(),
         updatedAt: new Date()
       })
-      return { id, email, token, message_id, confirm: 0, disabled: 0 }
+      return { id, email: normalizedEmail, token, message_id, confirm: 0, disabled: 0 }
     }
   },
   getAllSubscribers: async () => {

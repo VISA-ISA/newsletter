@@ -1,11 +1,12 @@
-const { createSubscriber } = require('./newsletter.service');
+const { createSubscriber, isValidEmail } = require('./newsletter.service');
 const sendMail = require('../mail/brevo');
 
 module.exports = async (request, h) => {
-  const { email } = request.payload;
+  const raw = request.payload?.email
+  const email = typeof raw === 'string' ? raw.trim() : ''
 
-  // Validation de l'email
-  if (!email || !email.includes('@')) {
+  // Validation de l'email (même règle que l’envoi newsletter)
+  if (!isValidEmail(email)) {
     return h.response({
       success: false,
       message: 'Veuillez fournir une adresse email valide.',
@@ -17,8 +18,9 @@ module.exports = async (request, h) => {
     // Créer ou mettre à jour le subscriber
     const subscriber = await createSubscriber(email);
 
-    // Créer le lien de confirmation
-    const confirmationLink = `${request.server.info.uri}/newsletter/inscription?token=${subscriber.token}`;
+    // URL publique (obligatoire derrière reverse-proxy / TLS, sinon le lien peut pointer vers 0.0.0.0 ou http interne)
+    const baseUrl = (process.env.PUBLIC_BASE_URL || request.server.info.uri).replace(/\/$/, '')
+    const confirmationLink = `${baseUrl}/newsletter/inscription?token=${subscriber.token}`;
 
     // Template de l'email de confirmation
     const emailTemplate = `
@@ -58,7 +60,7 @@ module.exports = async (request, h) => {
 
     // Envoyer l'email de confirmation
     await sendMail({
-      to: [{ email: subscriber.email }],
+      to: [{ email: subscriber.email , name: subscriber.email.split('@')[0]}],
       subject: 'Confirmez votre inscription à la Newsletter VISA-ISA',
       htmlContent: emailTemplate,
     });
@@ -67,7 +69,7 @@ module.exports = async (request, h) => {
     return h.response({
       success: true,
       message: `Un email de confirmation a été envoyé à ${email}. Veuillez cliquer sur le lien dans l'email pour confirmer votre inscription.`,
-      email: email,
+      email,
       token: subscriber.token
     });
 

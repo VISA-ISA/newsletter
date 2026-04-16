@@ -1,8 +1,6 @@
 const notif = require('../notif/notif')
 
 module.exports = async ({ to = [], subject, htmlContent }) => {
-    
-    console.log(to)
 
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',

@@ -3,7 +3,7 @@ const authCron = require('../cron/cron.auth')
 const sendMail = require('../mail/brevo')
 const Newsletter = require('./newsletter')
 const notif = require('../notif/notif')
-const { findOrCreateNewsletter, getSubscribersForSend, closeNewsletter, insertEmails, getEmailsCount, getEmailsStats, updateSubscriberToken } = require('./newsletter.service')
+const { findOrCreateNewsletter, getSubscribersForSend, closeNewsletter, insertEmails, getEmailsCount, getEmailsStats, updateSubscriberToken, isValidEmail, deleteSubscriber } = require('./newsletter.service')
 const { getSubscribersCount } = require('../subscribers/subscribers.service')
 
 module.exports = async (request, h) => {
@@ -39,6 +39,11 @@ module.exports = async (request, h) => {
     try {
 
       for (const subscriber of to) {
+        if (!isValidEmail(subscriber.email)) {
+          await deleteSubscriber(subscriber.email)
+          continue
+        }
+
         // Générer un nouveau token
         const newToken = crypto.randomBytes(32).toString('hex')
 
