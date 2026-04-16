@@ -108,8 +108,119 @@
                 font-size: 1.5em;
               "
             >
-              Liste des inscrits (<%= subscribers.length %>)
+              Liste des inscrits
+              <% const hasFilter = Boolean((searchQuery && String(searchQuery).trim()) || (statusFilter && statusFilter !== 'all')); %>
+              <% if (hasFilter) { %>
+              — <%= subscribers.length %> affiché(s) sur <%= subscriberTotal %>
+              <% } else { %>
+              (<%= subscriberTotal %>)
+              <% } %>
             </h2>
+
+            <form
+              method="GET"
+              action="/newsletter/admin"
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: flex-end;
+                margin-bottom: 18px;
+                padding: 14px;
+                background: #d5d6d8;
+                border: 1px solid #605e5f;
+              "
+            >
+              <input type="hidden" name="token" value="<%= token %>" />
+              <div style="flex: 1; min-width: 200px">
+                <label
+                  for="admin_search_q"
+                  style="
+                    display: block;
+                    font-size: 0.85em;
+                    font-weight: bold;
+                    margin-bottom: 4px;
+                    text-transform: uppercase;
+                  "
+                  >Recherche (email)</label
+                >
+                <input
+                  id="admin_search_q"
+                  type="search"
+                  name="q"
+                  value="<%= searchQuery %>"
+                  placeholder="ex. gmail, @domaine.fr…"
+                  autocomplete="off"
+                  style="
+                    width: 100%;
+                    box-sizing: border-box;
+                    padding: 8px 10px;
+                    border: 2px solid #231f20;
+                    font-family: Arial, sans-serif;
+                    font-size: 14px;
+                  "
+                />
+              </div>
+              <div style="min-width: 180px">
+                <label
+                  for="admin_filter_status"
+                  style="
+                    display: block;
+                    font-size: 0.85em;
+                    font-weight: bold;
+                    margin-bottom: 4px;
+                    text-transform: uppercase;
+                  "
+                  >Statut</label
+                >
+                <select
+                  id="admin_filter_status"
+                  name="status"
+                  style="
+                    width: 100%;
+                    box-sizing: border-box;
+                    padding: 8px 10px;
+                    border: 2px solid #231f20;
+                    font-family: Arial, sans-serif;
+                    font-size: 14px;
+                    background: white;
+                  "
+                >
+                  <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>Tous</option>
+                  <option value="confirmed" <%= statusFilter === 'confirmed' ? 'selected' : '' %>>Confirmé</option>
+                  <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>En attente</option>
+                  <option value="disabled" <%= statusFilter === 'disabled' ? 'selected' : '' %>>Désinscrit</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                style="
+                  padding: 8px 16px;
+                  background: #605e5f;
+                  color: white;
+                  border: 2px solid #231f20;
+                  font-family: Arial, sans-serif;
+                  font-weight: bold;
+                  text-transform: uppercase;
+                  cursor: pointer;
+                  font-size: 14px;
+                "
+              >
+                Filtrer
+              </button>
+              <% if (hasFilter) { %>
+              <a
+                href="/newsletter/admin?token=<%= encodeURIComponent(token || '') %>"
+                style="
+                  padding: 8px 12px;
+                  color: #231f20;
+                  font-size: 14px;
+                  font-weight: bold;
+                "
+                >Réinitialiser</a
+              >
+              <% } %>
+            </form>
 
             <div style="overflow-x: auto">
               <table
@@ -247,6 +358,8 @@
                         style="display: inline"
                         onsubmit="return confirm('Êtes-vous sûr de vouloir désinscrire <%= subscriber.email %> ?');"
                       >
+                        <input type="hidden" name="return_q" value="<%= searchQuery %>" />
+                        <input type="hidden" name="return_status" value="<%= statusFilter %>" />
                         <input
                           type="hidden"
                           name="action"
@@ -339,6 +452,8 @@
 
             <form method="POST" action="/newsletter/admin?token=<%= token %>">
               <input type="hidden" name="action" value="bulk_subscribe" />
+              <input type="hidden" name="return_q" value="<%= searchQuery %>" />
+              <input type="hidden" name="return_status" value="<%= statusFilter %>" />
               <div style="margin-bottom: 15px">
                 <label
                   for="emails"
@@ -468,6 +583,8 @@
               onsubmit="return confirm('Êtes-vous sûr de vouloir désinscrire ces emails ? Cette action est irréversible.');"
             >
               <input type="hidden" name="action" value="bulk_unsubscribe" />
+              <input type="hidden" name="return_q" value="<%= searchQuery %>" />
+              <input type="hidden" name="return_status" value="<%= statusFilter %>" />
               <div style="margin-bottom: 15px">
                 <label
                   for="unsubscribe_emails"

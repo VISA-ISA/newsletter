@@ -3,6 +3,43 @@ const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
 
+/** Filtre recherche (email) + statut pour le tableau admin */
+function filterSubscribers (all, q, status) {
+  let list = all
+  const needle = (q || '').trim().toLowerCase()
+  if (needle) {
+    list = list.filter((s) => String(s.email).toLowerCase().includes(needle))
+  }
+  const st = status || 'all'
+  if (st !== 'all') {
+    list = list.filter((s) => {
+      const disabled = Boolean(s.disabled)
+      const confirm = Boolean(s.confirm)
+      if (st === 'disabled') return disabled
+      if (st === 'confirmed') return !disabled && confirm
+      if (st === 'pending') return !disabled && !confirm
+      return true
+    })
+  }
+  return list
+}
+
+function adminListUrl (token, extra = {}) {
+  const p = new URLSearchParams()
+  p.set('token', token)
+  const q = (extra.q || '').trim()
+  if (q) p.set('q', q)
+  if (extra.status && extra.status !== 'all') p.set('status', extra.status)
+  if (extra.success) p.set('success', extra.success)
+  if (extra.email != null && extra.email !== '') p.set('email', extra.email)
+  if (extra.error) p.set('error', extra.error)
+  if (extra.bulk_success != null) p.set('bulk_success', String(extra.bulk_success))
+  if (extra.bulk_errors != null) p.set('bulk_errors', String(extra.bulk_errors))
+  if (extra.bulk_unsub_success != null) p.set('bulk_unsub_success', String(extra.bulk_unsub_success))
+  if (extra.bulk_unsub_errors != null) p.set('bulk_unsub_errors', String(extra.bulk_unsub_errors))
+  return `/newsletter/admin?${p.toString()}`
+}
+
 // Vérification simple du token
 const verifyAdmin = (request) => {
   const token = request.query.token || request.state?.admin_token;
@@ -18,12 +55,17 @@ const getHandler = async (request, h) => {
     return h.redirect('/newsletter/admin/login');
   }
 
-  // Récupérer tous les subscribers
-  const subscribers = await getAllSubscribers();
+  const allSubscribers = await getAllSubscribers()
+  const searchQuery = request.query.q != null ? String(request.query.q) : ''
+  const statusFilter = request.query.status != null ? String(request.query.status) : 'all'
+  const subscribers = filterSubscribers(allSubscribers, searchQuery, statusFilter)
 
   const template = await fs.promises.readFile(path.join(__dirname, 'newsletter.admin.dashboard.ejs'), 'utf8');
   const html = ejs.render(template, {
     subscribers,
+    subscriberTotal: allSubscribers.length,
+    searchQuery,
+    statusFilter,
     token: request.query.token,
     success: request.query.success,
     email: request.query.email,
@@ -43,16 +85,17 @@ const postHandler = async (request, h) => {
     return h.response({ error: 'Non autorisé' }).code(401);
   }
 
-  const { action, email, emails } = request.payload;
+  const { action, email, emails, return_q, return_status } = request.payload;
   const token = request.query.token;
+  const filterCtx = { q: return_q, status: return_status };
 
   // Désinscription individuelle
   if (action === 'unsubscribe' && email) {
     try {
       await disableSubscriber(email);
-      return h.redirect(`/newsletter/admin?token=${token}&success=unsubscribed&email=${encodeURIComponent(email)}`);
+      return h.redirect(adminListUrl(token, { ...filterCtx, success: 'unsubscribed', email }));
     } catch (error) {
-      return h.redirect(`/newsletter/admin?token=${token}&error=${encodeURIComponent(error.message)}`);
+      return h.redirect(adminListUrl(token, { ...filterCtx, error: error.message }));
     }
   }
 
@@ -67,7 +110,7 @@ const postHandler = async (request, h) => {
     const successCount = results.filter(r => r.status === 'created' || r.status === 'updated').length;
     const errorCount = results.filter(r => r.status === 'error').length;
 
-    return h.redirect(`/newsletter/admin?token=${token}&bulk_success=${successCount}&bulk_errors=${errorCount}`);
+    return h.redirect(adminListUrl(token, { ...filterCtx, bulk_success: successCount, bulk_errors: errorCount }));
   }
 
   // Désinscription en lot
@@ -90,10 +133,10 @@ const postHandler = async (request, h) => {
       }
     }
 
-    return h.redirect(`/newsletter/admin?token=${token}&bulk_unsub_success=${successCount}&bulk_unsub_errors=${errorCount}`);
+    return h.redirect(adminListUrl(token, { ...filterCtx, bulk_unsub_success: successCount, bulk_unsub_errors: errorCount }));
   }
 
-  return h.redirect(`/newsletter/admin?token=${token}&error=Action invalide`);
+  return h.redirect(adminListUrl(token, { ...filterCtx, error: 'Action invalide' }));
 };
 
 module.exports = { getHandler, postHandler };
