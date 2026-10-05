@@ -4,6 +4,7 @@ require('dotenv').config({ silent: true })
 const Hapi = require('@hapi/hapi');
 const routes = require('./features/routes/routes');
 const HapiCron = require('hapi-cron');
+const { registerErrorLogging } = require('./features/errors/errors.logger');
 
 const init = async () => {
 
@@ -11,6 +12,8 @@ const init = async () => {
     port: process.env.PORT || 4000,
     host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost'
   });
+
+  registerErrorLogging(server);
 
   try {
     await server.register({
