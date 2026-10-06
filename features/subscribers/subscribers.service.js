@@ -4,7 +4,7 @@ const subscribersService = {
   findOrCreateSubscriber: async (email) => {
     const subscriber = await knex('subscribers').where('email', email).first()
     if (!subscriber) {
-      await knex('subscribers').insert({ email, created_at: new Date(), updated_at: new Date(), seen_at: new Date() })
+      await knex('subscribers').insert({ email, createdAt: new Date(), updatedAt: new Date() })
     }
     return subscriber
   },
@@ -13,7 +13,7 @@ const subscribersService = {
     return count[0].count
   },
   blacklistSubscriber: async (email) => {
-    await knex('subscribers').where('email', email).update({ disabled: 1, updated_at: new Date() })
+    await knex('subscribers').where('email', email).update({ disabled: 1, updatedAt: new Date() })
   }
 }
 

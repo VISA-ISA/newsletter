@@ -5,7 +5,7 @@ const { knex } = require("../db/db")
  * Les TLD ASCII usuels sont alphabétiques ; les TLD IDN sont en punycode (xn--…).
  * Les domaines custom (ex. mail.entreprise.fr) restent valides si le TLD est une étiquette lettres-only ou punycode.
  */
-function isValidTldLabel (tld) {
+function isValidTldLabel(tld) {
   if (!tld || tld.length > 63) return false
   if (/^xn--/i.test(tld)) {
     return /^xn--[a-z0-9-]{1,59}$/i.test(tld) && tld.length >= 4
@@ -15,7 +15,7 @@ function isValidTldLabel (tld) {
 }
 
 /** Format d’email exploitable pour l’envoi (RFC simplifiée, longueur raisonnable). */
-function isValidEmail (email) {
+function isValidEmail(email) {
   if (typeof email !== 'string') return false
   const trimmed = email.trim()
   if (trimmed.length < 5 || trimmed.length > 254) return false
@@ -41,7 +41,7 @@ function isValidEmail (email) {
   return true
 }
 
-async function insertEmailRecord (newsletter_id, subscriber) {
+async function insertEmailRecord(newsletter_id, subscriber) {
   await knex('emails').insert({
     newsletter_id,
     subscriber_email: subscriber.email,
