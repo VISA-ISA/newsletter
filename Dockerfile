@@ -1,10 +1,11 @@
 FROM node:24-alpine
 WORKDIR /app
 
-COPY yarn.lock ./
-COPY package.json ./
+COPY package.json yarn.lock .yarnrc.yml ./
 
-RUN yarn install --frozen-lockfile --production && yarn cache clean
+RUN corepack enable && \
+    yarn install --immutable --mode=skip-build && \
+    yarn cache clean
 
 
 RUN addgroup -g 1001 -S nodejs && \
@@ -21,4 +22,4 @@ EXPOSE 4000
 
 ENV NODE_ENV=production
 
-CMD ["yarn", "start"]
+CMD ["yarn", "start:production"]

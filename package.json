@@ -6,10 +6,13 @@
   "scripts": {
     "start:dev": "nodemon server.js",
     "start": "node server.js",
+    "migrate:production": "knex migrate:latest --env production",
+    "start:production": "knex migrate:latest --env production && node server.js",
     "test": "node --test"
   },
   "author": "kazerlelutin",
   "license": "ISC",
+  "packageManager": "yarn@4.13.0",
   "dependencies": {
     "@hapi/hapi": "^21.4.3",
     "dotenv": "^17.2.1",
